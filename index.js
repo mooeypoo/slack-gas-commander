@@ -1,3 +1,3 @@
-var SpreadsheetService = require('./dist/SpreadsheetService')
+var SlackGasCommander = require('./dist/SlackGasCommander')
 
-module.exports = SpreadsheetService;
+module.exports = SlackGasCommander;

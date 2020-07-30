@@ -127,4 +127,5 @@ describe("Command test", () => {
 		})
 	})
 
+	// TODO: Commands with parameters?
 })

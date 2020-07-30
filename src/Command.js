@@ -5,6 +5,7 @@ class Command {
 		this.random = !!definition.random;
 		this.lookup_column = definition.lookup_column;
 		this.response_column = definition.response_column;
+		this.slackToken = definition.slack_token;
 	}
 
 	trigger(text) {
@@ -17,6 +18,15 @@ class Command {
 		}
 		return '';
 	}
+
+	isTokenValid(incomingToken) {
+		return this.slackToken === incomingToken;
+	}
+
+	getSheet() {
+		return this.sheet;
+	}
+
 }
 
 export default Command;

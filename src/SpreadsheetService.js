@@ -1,4 +1,5 @@
 import Utils from './Utils'
+import GASError from './GASError'
 /**
  * Responsible for the direct connection to the Google Spreadsheet
  * Retrieves raw data of the rows for processing.
@@ -41,7 +42,7 @@ class SpreadsheetService {
 	getRowsByColumn(column, lookupValue) {
 		let colIndex = this.columns.indexOf(column);
 		if (colIndex === -1) {
-			throw new Error('Given column "' + column + '" does not exist in the spreadsheet definition.');
+			throw new GASError('spreadsheet', 'Given column "' + column + '" does not exist in the spreadsheet definition.');
 		}
 		return this.rows.filter(row => {
 			return row[colIndex] === lookupValue;
