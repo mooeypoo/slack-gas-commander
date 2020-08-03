@@ -1,6 +1,7 @@
 import SpreadsheetService from './SpreadsheetService'
 import Command from './Command'
 import GASError from './GASError'
+import SlackService from './SlackService'
 
 class SlackGasCommander {
 	/**
@@ -33,6 +34,8 @@ class SlackGasCommander {
 			this.commands[cmd] = new Command(cmd, sheet, cmdData);
 		}
 
+		this.format = definition.format || {};
+		this.slack = new SlackService(this.sheet, this.format);
 	}
 
 	process(parameters) {
@@ -74,19 +77,16 @@ class SlackGasCommander {
 			throw new GASError('command', 'Expecting a parameter.')
 		}
 
-		// Get the relevant sheet
-		const result = this.commands[command].trigger(text);
-		let slackAnswer = {};
-
-
-
-
-
-
+		// Get the results
+		const results = this.commands[command].trigger(text);
+		let slackAnswer = Object.assign(
+			{
+				'response_type': 'in_channel'
+			},
+			this.slack.getResultOutput(text, results)
+		);
 		// Output for GAS
-		this.outputJSON(slackAnswer);
-
-
+		return this.outputJSON(slackAnswer);
 	}
 
 	_trigger(cmd, text) {

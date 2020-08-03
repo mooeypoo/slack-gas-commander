@@ -29,30 +29,57 @@ describe("Command test", () => {
 					sheet: sheet,
 					definition: {
 						random: false,
-						lookup_column: 'col1',
-						response_column: 'col3'
+						lookup_column: 'col1'
 					}
 				},
 				tests: [
 					{
 						msg: 'No text given',
 						text: '',
-						expected: null
+						expected: []
 					},
 					{
 						msg: 'Text lookup exists',
 						text: 'row3col1',
-						expected: 'row3col3'
+						expected: [
+							{
+								col1: 'row3col1',
+								col2: 'row3col2',
+								col3: 'row3col3'
+							}
+						]
 					},
 					{
 						msg: 'Text lookup doesn\'t exist',
 						text: 'foobar',
-						expected: null
+						expected: []
 					},
 					{
 						msg: 'Response to lookup is an empty string',
 						text: 'row2col1',
-						expected: ''
+						expected: [
+							{
+								col1: 'row2col1',
+								col2: 'row2col2',
+								col3: ''
+							}
+						]
+					},
+					{
+						msg: 'Response is multiple results',
+						text: 'foo',
+						expected: [
+							{
+								col1: 'foo',
+								col2: 'row8col2',
+								col3: 'row8col3'
+							},
+							{
+								col1: 'foo',
+								col2: 'row9col2',
+								col3: 'row9col3'
+							}
+						]
 					}
 				]
 			},
@@ -63,7 +90,7 @@ describe("Command test", () => {
 			c.tests.forEach(t => {
 				it(`${c.msg} - ${t.msg}`, () => {
 					expect(cmd.trigger(t.text))
-						.to.equal(t.expected)
+						.to.deep.equal(t.expected)
 				})
 			})
 		})
@@ -78,8 +105,7 @@ describe("Command test", () => {
 					sheet: sheet,
 					definition: {
 						random: true,
-						lookup_column: '', // Doesn't matter; ignored on random
-						response_column: 'col3'
+						lookup_column: '' // Doesn't matter; ignored on random
 					}
 				},
 				tests: [
@@ -104,24 +130,59 @@ describe("Command test", () => {
 				]
 			},
 		];
-		const expectedMembers = [
-			'row1col3',
-			'row3col3',
-			'row4col3',
-			'row5col3',
-			'row6col3',
-			'row7col3',
-			'row8col3',
-			'row9col3'
+		const potentialMembers = [
+			{
+				col1: 'row1col1',
+				col2: 'row1col2',
+				col3: 'row1col3'
+			},
+			{
+				col1: 'row2col1',
+				col2: 'row2col2',
+				col3: ''
+			},
+			{
+				col1: 'row3col1',
+				col2: 'row3col2',
+				col3: 'row3col3'
+			},
+			{
+				col1: 'row4col1',
+				col2: 'row4col2',
+				col3: 'row4col3'
+			},
+			{
+				col1: 'row5col1',
+				col2: 'row5col2',
+				col3: 'row5col3'
+			},
+			{
+				col1: 'row6col1',
+				col2: 'row6col2',
+				col3: 'row6col3'
+			},
+			{
+				col1: 'row7col1',
+				col2: 'row6col2',
+				col3: 'row7col3'
+			},
+			{
+				col1: 'foo',
+				col2: 'row8col2',
+				col3: 'row8col3'
+			},
+			{
+				col1: 'foo',
+				col2: 'row9col2',
+				col3: 'row9col3'
+			}
 		];
-		console.log(expectedMembers);
 
 		cases.forEach(c => {
 			const cmd = new Command(c.command.cmd, c.command.sheet, c.command.definition);
 			c.tests.forEach(t => {
-
 				it(`${c.msg} - ${t.msg}`, () => {
-					expect(expectedMembers).to.include.members([cmd.trigger(t.text)])
+					expect(potentialMembers).to.include.deep.members(cmd.trigger(t.text))
 				});
 			})
 		})

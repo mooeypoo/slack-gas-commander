@@ -89,43 +89,61 @@ describe("SpreadsheetService test", () => {
 		})
 	})
 
-	describe("lookupValuesByColumn", () => {
+	describe("getResultObjectByColumn", () => {
 		const cases = [
 			{
-				msg: 'Get specific column for single result',
+				msg: 'Single result',
 				input: {
-					col: 'col2',
-					val: 'row5col2',
-					responseCol: 'col3'
+					col: 'col1',
+					val: 'row2col1',
+					random: false
 				},
-				expected: 'row5col3'
+				expected: [
+					{
+						col1: 'row2col1',
+						col2: 'row2col2',
+						col3: 'row2col3'
+					}
+				]
 			},
 			{
-				msg: 'Get specific column for multiple results',
+				msg: 'Multiple results',
 				input: {
 					col: 'col2',
 					val: 'row6col2',
-					responseCol: 'col3'
+					random: false
 				},
-				expected: ['row6col3', 'row7col3']
+				expected: [
+					{
+						col1: 'row6col1',
+						col2: 'row6col2',
+						col3: 'row6col3'
+					},
+					{
+						col1: 'row7col1',
+						col2: 'row6col2',
+						col3: 'row7col3'
+					}
+				]
 			},
 			{
-				msg: 'Get sensible answer for no results',
+				msg: 'No results',
 				input: {
-					col: 'col2',
-					val: 'nonexistent',
-					responseCol: 'col3'
+					col: 'col1',
+					val: 'foo',
+					random: false
 				},
-				expected: null
+				expected: []
 			}
+			// TODO: Test random
 		];
 
 		const ss = new SpreadsheetService('', columns, 0, mockRows);
 		cases.forEach(c => {
 			it(c.msg, () => {
-				expect(ss.lookupValuesByColumn(c.input.col, c.input.val, c.input.responseCol))
+				expect(ss.getResultObjectByColumn(c.input.col, c.input.val, c.input.random))
 					.to.deep.equal(c.expected)
 			})
 		})
-	})
+	});
 })

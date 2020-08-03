@@ -35,6 +35,10 @@ class SpreadsheetService {
 		return this.rows;
 	}
 
+	getColumns() {
+		return this.columns;
+	}
+
 	getColumnIndex(colName) {
 		return this.columns.indexOf(colName);
 	}
@@ -49,20 +53,35 @@ class SpreadsheetService {
 		});
 	}
 
-	lookupValuesByColumn(lookupColumn, lookupValue, responseColumn) {
-		let responseColIndex = this.columns.indexOf(responseColumn);
-		let rows = this.getRowsByColumn(lookupColumn, lookupValue);
-
-		rows = rows.map(row => {
-			return row[responseColIndex]
-		})
-
-		if (rows.length === 0) {
-			return null;
-		} else if (rows.length === 1) {
-			return rows[0];
+	/**
+	 * Get an object (or an array of objects) representing the valid
+	 * result or results from the spreadsheet. The objects represent
+	 * rows, where the keys are the column names as defined,
+	 * and the values are the values of each colunm.
+	 *
+	 * @param {string} lookupColumn The column to compare the value
+	 *  to so we match the correct row
+	 * @param {string} lookupValue The value to compare to for matches.
+	 *  If random, the lookup value is ignored, and a single random
+	 *  row is returned.
+	 * @param {Boolean} random Return a random row
+	 */
+	getResultObjectByColumn(lookupColumn, lookupValue, random = false) {
+		let results = [];
+		if (random) {
+			// Random
+			results = [this.getRandomRow()];
+		} else {
+			// Non-random, with a lookup value
+			results = this.getRowsByColumn(lookupColumn, lookupValue);
 		}
-		return rows;
+		return results.map(row => {
+			let obj = {};
+			for (let i = 0; i < this.columns.length; i++) {
+				obj[this.columns[i]] = row[i]
+			}
+			return obj;
+		});
 	}
 
 	getRandomRow() {
