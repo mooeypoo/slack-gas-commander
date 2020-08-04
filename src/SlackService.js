@@ -12,23 +12,24 @@ class SlackService {
 
 	getTitle(lookupWord) {
 		return this.format.title ?
-			this.translateKeyValues(this.format.title, { title: lookupWord }) :
+			this.translateKeyValues(this.format.title, { term: lookupWord }) :
 			`Found results for ${lookupWord}`;
 	}
 
-	getResultOutput(lookup = '', results = []) {
+	getResultOutput(lookupWord = '', results = []) {
 		if (!this.format.result) {
 			throw new GASError('format', 'There is no valid response format provided.')
 		}
 
 		let attachments = [];
-		if (!result.length) {
+
+		if (!results.length) {
 			attachments.push({
 				'mrkdwn_in': ['text'],
 				"color": "#36a64f", // TODO: Configurable
 				"pretext": "",
 				"title": this.format.no_result ?
-					this.translateKeyValues(this.format.no_result, { title: lookupWord }) :
+					this.translateKeyValues(this.format.no_result, { term: lookupWord }) :
 					`No results found for ${lookupWord}`,
 				text: ''
 			});
@@ -37,7 +38,7 @@ class SlackService {
 				'mrkdwn_in': ['text'],
 				"color": "#36a64f", // TODO: Configurable
 				"pretext": "",
-				"title": this.getTitle(lookup),
+				"title": this.getTitle(lookupWord),
 				text: ''
 			});
 		}
@@ -45,7 +46,8 @@ class SlackService {
 		results.forEach(res => {
 			attachments.push({
 				'mrkdwn_in': ['text'],
-				text: this.translateKeyValues(this.format.result, res)
+				// Add %term% as lookup word
+				text: this.translateKeyValues(this.format.result, Object.assign(res, { term: lookupWord }))
 			});
 		});
 		return { attachments };
