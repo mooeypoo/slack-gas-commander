@@ -1,4 +1,5 @@
-.clasp.json
 node_modules/
+.nyc_output/
 dist/*
 docs/*
+.coveralls.yml
