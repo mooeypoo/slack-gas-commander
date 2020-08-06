@@ -1,6 +1,8 @@
 {
   "name": "@mooeypoo/slack-gas-commander",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "author": "Moriel Schottlender",
+  "license": "MIT",
   "description": "A configurable system to create slack commands that respond from Google App Script spreadsheets.",
   "main": "index.js",
   "type": "module",
@@ -14,8 +16,6 @@
     "test": "./node_modules/.bin/mocha --require @babel/register",
     "doc": "jsdoc -c .jsdoc.json"
   },
-  "author": "Moriel Schottlender",
-  "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.10.5",

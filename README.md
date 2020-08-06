@@ -1,3 +1,6 @@
+[![CircleCI](https://circleci.com/gh/mooeypoo/slack-gas-commander.svg?style=svg)](https://circleci.com/gh/mooeypoo/slack-gas-commander)
+
+
 Slack GAS Commander
 ===================
 

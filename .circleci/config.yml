@@ -14,5 +14,3 @@ jobs:
           name: Test
           command: |
             npm run test
-            git status
-            git status | grep "nothing to commit, working tree clean"
