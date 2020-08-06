@@ -1,3 +1,4 @@
+[![npm version](https://badge.fury.io/js/%40mooeypoo%2Fslack-gas-commander.svg)](https://badge.fury.io/js/%40mooeypoo%2Fslack-gas-commander)
 [![CircleCI](https://circleci.com/gh/mooeypoo/slack-gas-commander.svg?style=svg)](https://circleci.com/gh/mooeypoo/slack-gas-commander)
 
 
