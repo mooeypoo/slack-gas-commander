@@ -13,9 +13,9 @@ jobs:
       - run:
           name: Test
           command: |
-			npm run test
+            npm run test
 
-	  - run:
+      - run:
           name: Coverage
           command: |
-			npm run coverage
+            npm run coverage
