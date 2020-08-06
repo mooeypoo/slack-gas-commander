@@ -43,13 +43,17 @@ class SpreadsheetService {
 		return this.columns.indexOf(colName);
 	}
 
-	getRowsByColumn(column, lookupValue) {
+	getRowsByColumn(column, lookupValue, caseSensitive = false) {
 		let colIndex = this.columns.indexOf(column);
 		if (colIndex === -1) {
 			throw new GASError('spreadsheet', 'Given column "' + column + '" does not exist in the spreadsheet definition.');
 		}
 		return this.rows.filter(row => {
-			return row[colIndex] === lookupValue;
+			if (caseSensitive) {
+				return row[colIndex] === lookupValue;
+			} else {
+				return row[colIndex].toLowerCase() === lookupValue.toLowerCase();
+			}
 		});
 	}
 
@@ -64,9 +68,10 @@ class SpreadsheetService {
 	 * @param {string} lookupValue The value to compare to for matches.
 	 *  If random, the lookup value is ignored, and a single random
 	 *  row is returned.
-	 * @param {Boolean} random Return a random row
+	 * @param {Boolean} [random] Return a random row
+	 * @param {Boolean} [caseSensitive] Treat the lookup as case sensitive.
 	 */
-	getResultObjectByColumn(lookupColumn, lookupValue, random = false) {
+	getResultObjectByColumn(lookupColumn, lookupValue, random = false, caseSensitive = false) {
 		let results = [];
 		if (random) {
 			// Random

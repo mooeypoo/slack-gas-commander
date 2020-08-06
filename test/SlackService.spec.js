@@ -176,5 +176,6 @@ describe("SlackService test", () => {
 					.to.deep.equal(c.expected)
 			})
 		});
+
 	});
 });
