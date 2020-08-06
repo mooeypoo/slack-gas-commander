@@ -1,6 +1,6 @@
 {
   "name": "@mooeypoo/slack-gas-commander",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Moriel Schottlender",
   "license": "MIT",
   "description": "A configurable system to create slack commands that respond from Google App Script spreadsheets.",
