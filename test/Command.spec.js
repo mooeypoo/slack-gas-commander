@@ -1,6 +1,6 @@
-import { expect } from "chai"
-import SpreadsheetService from "../src/SpreadsheetService.js";
-import Command from '../src/Command'
+import { expect } from 'chai';
+import SpreadsheetService from '../src/SpreadsheetService.js';
+import Command from '../src/Command';
 
 const columns = ['col1', 'col2', 'col3'],
 	mockRows = [
@@ -8,7 +8,7 @@ const columns = ['col1', 'col2', 'col3'],
 		['row2col1', 'row2col2', ''],
 		['row3col1', 'row3col2', 'row3col3'],
 		['', '', '']
-		['row4col1', 'row4col2', 'row4col3'],
+			['row4col1', 'row4col2', 'row4col3'],
 		['row5col1', 'row5col2', 'row5col3'],
 		['row6col1', 'row6col2', 'row6col3'],
 		['row7col1', 'row6col2', 'row7col3'], // Duplicate col2 on purpose
@@ -17,10 +17,10 @@ const columns = ['col1', 'col2', 'col3'],
 		['', '', '']
 	],
 	// For reference
-	sheet = new SpreadsheetService('', columns, 0, mockRows);
+	sheet = new SpreadsheetService( '', columns, 0, mockRows );
 
-describe("Command test", () => {
-	describe("trigger (non random: false)", () => {
+describe( 'Command test', () => {
+	describe( 'trigger (non random: false)', () => {
 		const cases = [
 			{
 				msg: 'Non random lookup/response cols',
@@ -82,21 +82,21 @@ describe("Command test", () => {
 						]
 					}
 				]
-			},
+			}
 		];
 
-		cases.forEach(c => {
-			const cmd = new Command(c.command.cmd, c.command.sheet, c.command.definition);
-			c.tests.forEach(t => {
-				it(`${c.msg} - ${t.msg}`, () => {
-					expect(cmd.trigger(t.text))
-						.to.deep.equal(t.expected)
-				})
-			})
-		})
-	})
+		cases.forEach( c => {
+			const cmd = new Command( c.command.cmd, c.command.sheet, c.command.definition );
+			c.tests.forEach( t => {
+				it( `${c.msg} - ${t.msg}`, () => {
+					expect( cmd.trigger( t.text ) )
+						.to.deep.equal( t.expected );
+				} );
+			} );
+		} );
+	} );
 
-	describe("trigger (random: true)", () => {
+	describe( 'trigger (random: true)', () => {
 		const cases = [
 			{
 				msg: 'Random lookup/response cols',
@@ -128,7 +128,7 @@ describe("Command test", () => {
 						text: 'row2col1'
 					}
 				]
-			},
+			}
 		];
 		const potentialMembers = [
 			{
@@ -178,15 +178,15 @@ describe("Command test", () => {
 			}
 		];
 
-		cases.forEach(c => {
-			const cmd = new Command(c.command.cmd, c.command.sheet, c.command.definition);
-			c.tests.forEach(t => {
-				it(`${c.msg} - ${t.msg}`, () => {
-					expect(potentialMembers).to.include.deep.members(cmd.trigger(t.text))
-				});
-			})
-		})
-	})
+		cases.forEach( c => {
+			const cmd = new Command( c.command.cmd, c.command.sheet, c.command.definition );
+			c.tests.forEach( t => {
+				it( `${c.msg} - ${t.msg}`, () => {
+					expect( potentialMembers ).to.include.deep.members( cmd.trigger( t.text ) );
+				} );
+			} );
+		} );
+	} );
 
 	// TODO: Commands with parameters?
-})
+} );

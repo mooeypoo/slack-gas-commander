@@ -1,3 +1,4 @@
-var SlackGasCommander = require('./dist/SlackGasCommander')
+/* eslint no-undef: 0 */
+const SlackGasCommander = require('./dist/SlackGasCommander');
 
 module.exports = SlackGasCommander;

@@ -1,6 +1,6 @@
-import { expect } from "chai"
-import SlackService from '../src/SlackService'
-import SpreadsheetService from "../src/SpreadsheetService.js"
+import { expect } from 'chai';
+import SlackService from '../src/SlackService';
+import SpreadsheetService from '../src/SpreadsheetService.js';
 
 const columns = ['col1', 'col2', 'col3'],
 	mockRows = [
@@ -8,7 +8,7 @@ const columns = ['col1', 'col2', 'col3'],
 		['row2col1', 'row2col2', 'row2col3'],
 		['row3col1', 'row3col2', 'row3col3'],
 		['', '', '']
-		['row4col1', 'row4col2', 'row4col3'],
+			['row4col1', 'row4col2', 'row4col3'],
 		['row5col1', 'row5col2', 'row5col3'],
 		['row6col1', 'row6col2', 'row6col3'],
 		['row7col1', 'row6col2', 'row7col3'], // Duplicate col2 on purpose
@@ -16,8 +16,8 @@ const columns = ['col1', 'col2', 'col3'],
 		['', '', '']
 	];
 
-describe("SlackService test", () => {
-	describe("translateKeyValues", () => {
+describe('SlackService test', () => {
+	describe('translateKeyValues', () => {
 		const cases = [
 			{
 				msg: 'Simple replacement',
@@ -56,18 +56,18 @@ describe("SlackService test", () => {
 					three: 'Baz'
 				},
 				expected: 'Foo is Bar but also Foo is Baz'
-			},
+			}
 		];
 
 		const slack = new SlackService();
 		cases.forEach(c => {
 			it(c.msg, () => {
-				expect(slack.translateKeyValues(c.input, c.values)).to.equal(c.expected)
-			})
+				expect(slack.translateKeyValues(c.input, c.values)).to.equal(c.expected);
+			});
 		});
 	});
 
-	describe("getResultOutput", () => {
+	describe('getResultOutput', () => {
 		const mockSheet = new SpreadsheetService('', columns, 0, mockRows),
 			mockFormat = {
 				title: 'These are results for "%term%"',
@@ -90,14 +90,14 @@ describe("SlackService test", () => {
 					expected: {
 						attachments: [
 							{
-								'mrkdwn_in': ['text'],
-								"color": "#36a64f",
-								"pretext": "",
-								"title": 'These are results for "foo"',
+								mrkdwn_in: ['text'],
+								color: '#36a64f',
+								pretext: '',
+								title: 'These are results for "foo"',
 								text: ''
 							},
 							{
-								'mrkdwn_in': ['text'],
+								mrkdwn_in: ['text'],
 								text: 'Result for foo is baz'
 							}
 						]
@@ -128,22 +128,22 @@ describe("SlackService test", () => {
 					expected: {
 						attachments: [
 							{
-								'mrkdwn_in': ['text'],
-								"color": "#36a64f",
-								"pretext": "",
-								"title": 'These are results for "foo"',
+								mrkdwn_in: ['text'],
+								color: '#36a64f',
+								pretext: '',
+								title: 'These are results for "foo"',
 								text: ''
 							},
 							{
-								'mrkdwn_in': ['text'],
+								mrkdwn_in: ['text'],
 								text: 'Result for foo is baz1'
 							},
 							{
-								'mrkdwn_in': ['text'],
+								mrkdwn_in: ['text'],
 								text: 'Result for foo is baz2'
 							},
 							{
-								'mrkdwn_in': ['text'],
+								mrkdwn_in: ['text'],
 								text: 'Result for foo is baz3'
 							}
 						]
@@ -158,23 +158,23 @@ describe("SlackService test", () => {
 					expected: {
 						attachments: [
 							{
-								'mrkdwn_in': ['text'],
-								"color": "#36a64f", // TODO: Configurable
-								"pretext": "",
-								"title": 'I couldn\'t find any results for foo',
+								mrkdwn_in: ['text'],
+								color: '#36a64f', // TODO: Configurable
+								pretext: '',
+								title: 'I couldn\'t find any results for foo',
 								text: ''
 							}
 						]
 					}
-				},
+				}
 			];
 
 		cases.forEach(c => {
-			const slack = new SlackService(mockSheet, mockFormat);
+			const slack = new SlackService(mockSheet.getColumns(), mockFormat);
 			it(c.msg, () => {
 				expect(slack.getResultOutput(c.input.lookup, c.input.results))
-					.to.deep.equal(c.expected)
-			})
+					.to.deep.equal(c.expected);
+			});
 		});
 
 	});

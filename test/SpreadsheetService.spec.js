@@ -1,5 +1,5 @@
-import { expect } from "chai"
-import SpreadsheetService from "../src/SpreadsheetService.js"
+import { expect } from 'chai';
+import SpreadsheetService from '../src/SpreadsheetService.js';
 
 const columns = ['col1', 'col2', 'col3'],
 	mockRows = [
@@ -7,7 +7,7 @@ const columns = ['col1', 'col2', 'col3'],
 		['row2col1', 'row2col2', 'row2col3'],
 		['row3col1', 'row3col2', 'row3col3'],
 		['', '', '']
-		['row4col1', 'row4col2', 'row4col3'],
+			['row4col1', 'row4col2', 'row4col3'],
 		['row5col1', 'row5col2', 'row5col3'],
 		['row6col1', 'row6col2', 'row6col3'],
 		['row7col1', 'row6col2', 'row7col3'], // Duplicate col2 on purpose
@@ -15,9 +15,9 @@ const columns = ['col1', 'col2', 'col3'],
 		['', '', '']
 	];
 
-describe("SpreadsheetService test", () => {
-	describe("removeEmptyRows", () => {
-		it("Should remove empty rows.", () => {
+describe( 'SpreadsheetService test', () => {
+	describe( 'removeEmptyRows', () => {
+		it( 'Should remove empty rows.', () => {
 			const cases = [
 				{
 					input: [
@@ -40,20 +40,20 @@ describe("SpreadsheetService test", () => {
 				}
 			];
 
-			cases.forEach(c => {
-				expect(SpreadsheetService.removeEmptyRows(c.input))
-					.to.deep.equal(c.expected)
-			})
-		})
-	})
+			cases.forEach( c => {
+				expect( SpreadsheetService.removeEmptyRows( c.input ) )
+					.to.deep.equal( c.expected );
+			} );
+		} );
+	} );
 
-	describe("getRowsByColumn", () => {
+	describe( 'getRowsByColumn', () => {
 		const cases = [
 			{
 				msg: 'Simple result lookup',
 				input: {
 					col: 'col2',
-					val: 'row5col2',
+					val: 'row5col2'
 				},
 				expected: [
 					['row5col1', 'row5col2', 'row5col3']
@@ -80,16 +80,16 @@ describe("SpreadsheetService test", () => {
 			}
 		];
 
-		const ss = new SpreadsheetService('', columns, 0, mockRows);
-		cases.forEach(c => {
-			it(c.msg, () => {
-				expect(ss.getRowsByColumn(c.input.col, c.input.val, c.input.responseCol))
-					.to.deep.equal(c.expected)
-			})
-		})
-	})
+		const ss = new SpreadsheetService( '', columns, 0, mockRows );
+		cases.forEach( c => {
+			it( c.msg, () => {
+				expect( ss.getRowsByColumn( c.input.col, c.input.val, c.input.responseCol ) )
+					.to.deep.equal( c.expected );
+			} );
+		} );
+	} );
 
-	describe("getResultObjectByColumn", () => {
+	describe( 'getResultObjectByColumn', () => {
 		const cases = [
 			{
 				msg: 'Single result',
@@ -138,12 +138,12 @@ describe("SpreadsheetService test", () => {
 			// TODO: Test random
 		];
 
-		const ss = new SpreadsheetService('', columns, 0, mockRows);
-		cases.forEach(c => {
-			it(c.msg, () => {
-				expect(ss.getResultObjectByColumn(c.input.col, c.input.val, c.input.random))
-					.to.deep.equal(c.expected)
-			})
-		})
-	});
-})
+		const ss = new SpreadsheetService( '', columns, 0, mockRows );
+		cases.forEach( c => {
+			it( c.msg, () => {
+				expect( ss.getResultObjectByColumn( c.input.col, c.input.val, c.input.random ) )
+					.to.deep.equal( c.expected );
+			} );
+		} );
+	} );
+} );

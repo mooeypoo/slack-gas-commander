@@ -1,8 +1,17 @@
-import SpreadsheetService from './SpreadsheetService'
-import Command from './Command'
-import GASError from './GASError'
-import SlackService from './SlackService'
+import SpreadsheetService from './SpreadsheetService';
+import Command from './Command';
+import GASError from './GASError';
+import SlackService from './SlackService';
 
+/**
+ * The wrapper class, responsible for processing the event
+ * parameters sent from the Slack API for the command, and returning
+ * a JSON answer to be displayed in the Google App Script web interface.
+ *
+ * This class is the only one exposed to users of the library.
+ *
+ * @class SlackGasCommander
+ */
 class SlackGasCommander {
 	/**
 	 * Instantiate based on a given definition setting up the behavior of
@@ -20,7 +29,7 @@ class SlackGasCommander {
 				sData.columns,
 				sData.sheet || 0,
 				sData.mockRows || [] // For testing purposes
-			)
+			);
 		}
 
 		// Store commands
@@ -34,18 +43,24 @@ class SlackGasCommander {
 
 			this.commands[cmd] = new Command(cmd, sheet, cmdData);
 
-			this.slack[cmd] = new SlackService(sheet, cmdData.format);
+			this.slack[cmd] = new SlackService(sheet.getColumns(), cmdData.format);
 		}
 
 	}
 
+	/**
+	 * Process the POST event given by Google App Script when Slack API sends
+	 * parameters related to the command.
+	 *
+	 * @param {Object} parameters Event parameters, sent by Slack
+	 * @return {Object} A response object for Slack.
+	 */
 	process(parameters) {
-		// TODO: use try/catch to return a jsonified error message from GAS service
-		// using ContentService.createTextOutput(JSON.stringify(output)).setMimeType(ContentService.MimeType.JSON);
-		// TODO: Use a GoogleAppScript service for those?
+		// TODO: use try/catch to return a jsonified
+		// error message from GAS service
+		// eslint-disable-next-line no-underscore-dangle
 		return this._doProcessing(parameters);
 	}
-
 
 	// Private methods
 	// TODO: Move these into another processing class that is actually private
@@ -54,18 +69,20 @@ class SlackGasCommander {
 	/**
 	 * Process the post event given by the command, to the Google App Script endpoint.
 	 *
-	 * @param {Object} event Post event from Google App Script doPost(e)
+	 * @param {Object} parameters Event parameters, sent by Slack
+	 * @return {Object} A response object for Slack.
 	 */
 	_doProcessing(parameters) {
 		// Remove the slash from incoming command name
-		const command = (Array.isArray(parameters.command) ? parameters.command[0] : parameters.command).substr(1);
+		const command = (Array.isArray(parameters.command) ?
+			parameters.command[0] : parameters.command).substr(1);
 		const token = Array.isArray(parameters.token) ? parameters.token[0] : parameters.token;
 
 		if (!this.commands[command]) {
-			throw new GASError('processing', `Given command "${command}" is not recognized.`)
+			throw new GASError('processing', `Given command "${command}" is not recognized.`);
 		}
 		if (!this.commands[command].getSheet()) {
-			throw new GASError('processing', `Given command "${command}" does not have an attached spreadsheet.`)
+			throw new GASError('processing', `Given command "${command}" does not have an attached spreadsheet.`);
 		}
 		if (!this.validateIncomingToken(command, token)) {
 			throw new GASError('processing', 'Given token is invalid.');
@@ -74,15 +91,15 @@ class SlackGasCommander {
 
 		if (!text && !this.commands[command].isRandom()) {
 			// Parameter is expected
-			throw new GASError('command', 'Expecting a parameter.')
+			throw new GASError('command', 'Expecting a parameter.');
 		}
 
 		// Get the results
 		const results = this.commands[command].trigger(text);
-		let slackAnswer = Object.assign(
+		const slackAnswer = Object.assign(
 			{
 				// TODO: This should be configurable from the command definition
-				'response_type': 'in_channel'
+				response_type: 'in_channel'
 			},
 			this.slack[command].getResultOutput(text, results)
 		);
@@ -90,25 +107,27 @@ class SlackGasCommander {
 		return slackAnswer;
 	}
 
-	_trigger(cmd, text) {
-		if (!this.commands[cmd]) {
-			throw new GASError('command', `Given command "${cmd}" is not recognized.`)
-		}
-		return this.commands[cmd].trigger(text);
-	}
-
 	/**
 	 * Validate that the incoming token is correct for the
 	 * requested command.
 	 *
-	 * @param {String} command Given command
-	 * @param {String} token Given token
+	 * @param {string} command Given command
+	 * @param {string} token Given token
+	 * @return {boolean} Incoming token is valid
 	 */
 	validateIncomingToken(command, token) {
 		return this.commands[command] && this.commands[command].isTokenValid(token);
 	}
+	/**
+	 * Output an object into JSON representation using Google App Script's
+	 * ContentService and headers.
+	 *
+	 * @param {Object} object to JSONify
+	 * @return {ContentService} stringified representation within Google App Script
+	 */
 	outputJSON(object) {
-		return ContentService.createTextOutput(JSON.stringify(object)).setMimeType(ContentService.MimeType.JSON);
+		return ContentService.createTextOutput(JSON.stringify(object))
+			.setMimeType(ContentService.MimeType.JSON);
 	}
 }
 
