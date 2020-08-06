@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import SlackGasCommander from '../src/SlackGasCommander';
+import Processor from '../src/Processor';
 
 /*
 From Slack documentation, expected parameter structure
@@ -27,46 +27,46 @@ below can mock an incoming POST request from Slack and make
 sure that the response is what we expect.
 */
 
-describe( 'SlackGasCommander test', () => {
-	describe( 'Basic command', () => {
+describe('Processor test', () => {
+	describe('Basic command', () => {
 		const definition = {
-				sheets: {
-					id_abbrev: {
-						url: '', // Skipped; tests are given mock rows
-						columns: [
-							'col1',
-							'col2',
-							'col3'
-						],
-						sheet: 0,
-						mockRows: [
-							['row1col1', 'row1col2', 'row1col3'],
-							['row2col1', 'row2col2', 'row2col3'],
-							['row3col1', 'row3col2', 'row3col3'],
-							['', '', '']
-								['row4col1', 'row4col2', 'row4col3'],
-							['row5col1', 'row5col2', 'row5col3'],
-							['row6col1', 'row6col2', 'row6col3'],
-							['row7col1', 'row6col2', 'row7col3'], // Duplicate col2 on purpose
-							['', '', ''],
-							['', '', '']
-						]
-					}
-				},
-				commands: {
-					abbrev: { // Key is the command name in slack; /abbrev
-						slack_token: 'xxxxx',
-						sheet: 'id_abbrev',
-						random: false,
-						lookup_column: 'col1',
-						format: {
-							title: 'These are the results for %term%', // Only "%term% is valid here
-							result: '*%term%* is %col3%',
-							no_result: 'Couldn\'t find anything for "%term%"'
-						}
-					}
+			sheets: {
+				id_abbrev: {
+					url: '', // Skipped; tests are given mock rows
+					columns: [
+						'col1',
+						'col2',
+						'col3'
+					],
+					sheet: 0,
+					mockRows: [
+						['row1col1', 'row1col2', 'row1col3'],
+						['row2col1', 'row2col2', 'row2col3'],
+						['row3col1', 'row3col2', 'row3col3'],
+						['', '', '']
+						['row4col1', 'row4col2', 'row4col3'],
+						['row5col1', 'row5col2', 'row5col3'],
+						['row6col1', 'row6col2', 'row6col3'],
+						['row7col1', 'row6col2', 'row7col3'], // Duplicate col2 on purpose
+						['', '', ''],
+						['', '', '']
+					]
 				}
 			},
+			commands: {
+				abbrev: { // Key is the command name in slack; /abbrev
+					slack_token: 'xxxxx',
+					sheet: 'id_abbrev',
+					random: false,
+					lookup_column: 'col1',
+					format: {
+						title: 'These are the results for %term%', // Only "%term% is valid here
+						result: '*%term%* is %col3%',
+						no_result: 'Couldn\'t find anything for "%term%"'
+					}
+				}
+			}
+		},
 			cases = [
 				{
 					msg: 'Non random single result',
@@ -98,7 +98,7 @@ describe( 'SlackGasCommander test', () => {
 				}
 			];
 
-		const sgc = new SlackGasCommander( definition );
+		const sgc = new Processor(definition);
 		const baseParams = {
 			// token: 'xxxx',
 			team_id: 'T0001',
@@ -115,12 +115,12 @@ describe( 'SlackGasCommander test', () => {
 			trigger_id: '13345224609.738474920.8088930838d88f008e0'
 		};
 
-		cases.forEach( c => {
-			it( c.msg, () => {
+		cases.forEach(c => {
+			it(c.msg, () => {
 				expect(
-					sgc.process( Object.assign( {}, c.incoming, baseParams ) )
-				).to.deep.equal( c.expected );
-			} );
-		} );
-	} );
-} );
+					sgc.process(Object.assign({}, c.incoming, baseParams))
+				).to.deep.equal(c.expected);
+			});
+		});
+	});
+});
