@@ -125,11 +125,11 @@ Defines the spreadsheet or spreadsheets that your commands will use for data.
 
 ```json
 {
-	sheets: {
-		unique_sheet_id: {
-			url: ,
-			columns: [ 'col1', 'col2', 'col3' ],
-			sheet: 0
+	"sheets": {
+		"unique_sheet_id": {
+			"url": ,
+			"columns": [ "col1", "col2", "col3" ],
+			"sheet": 0
 		}
 	}
 }
@@ -148,14 +148,14 @@ Defines the behavior of the command and its output.
 
 ```json
 {
-	commands: {
-		cmdName: {
-			slack_token: 'xxxxx',
-			sheet: 'unique_sheet_id',
-			lookup_column: 'col1',
-			format: {
-				result: '%term% is %col3%',
-				no_result: 'Not found'
+	"commands": {
+		"cmdName": {
+			"slack_token": "xxxxx",
+			"sheet": "unique_sheet_id",
+			"lookup_column": "col1",
+			"format": {
+				"result": "%term% is %col3%",
+				"no_result": "Not found"
 			}
 		}
 	}
