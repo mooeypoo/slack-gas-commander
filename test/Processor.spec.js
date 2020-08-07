@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import Processor from '../src/Processor';
+import GASError from '../src/GASError';
 
 /*
 From Slack documentation, expected parameter structure
@@ -122,5 +123,11 @@ describe('Processor test', () => {
 				).to.deep.equal(c.expected);
 			});
 		});
+	});
+
+	describe('Thrown exception', () => {
+		expect(() => {
+			return new Processor();
+		}).to.throw(GASError)
 	});
 });

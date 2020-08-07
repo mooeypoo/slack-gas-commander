@@ -31,7 +31,11 @@ class SlackGasCommander {
 	process(parameters) {
 		// TODO: use try/catch to return a jsonified
 		// error message from GAS service
-		return this.processor.process(parameters);
+		try {
+			return this.processor.process(parameters);
+		} catch (err) {
+			// TODO: Output slack blocks with the error type and message
+		}
 	}
 }
 

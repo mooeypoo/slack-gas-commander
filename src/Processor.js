@@ -17,6 +17,7 @@ class Processor {
 	 * @param {Object} definition Command and sheet relation definition
 	 */
 	constructor(definition = {}) {
+		this.validateDefinition(definition);
 		// Store sheets
 		this.sheets = {};
 		for (const [sId, sData] of Object.entries(definition.sheets || {})) {
@@ -95,6 +96,25 @@ class Processor {
 	 */
 	validateIncomingToken(command, token) {
 		return this.commands[command] && this.commands[command].isTokenValid(token);
+	}
+
+	/**
+	 * Validate the structure and expected details of the definition
+	 *
+	 * @param {Object} definition Object defining the system
+	 */
+	validateDefinition(definition) {
+		if (!definition) {
+			throw new GASError('validation', 'Definition object cannot be empty.');
+		}
+
+		if (!definition.sheets || !Object.keys(definition.sheets).length) {
+			throw new GASError('validation', 'Definition must include at least one sheet.');
+		}
+
+		if (!definition.commands || !Object.keys(definition.commands).length) {
+			throw new GASError('validation', 'Definition must include at least one command.');
+		}
 	}
 	/**
 	 * Output an object into JSON representation using Google App Script's
