@@ -26,7 +26,7 @@ class SlackService {
 	 *  the replacement terms.
 	 * @return {string} A complete translated string
 	 */
-	translateKeyValues(str, values = {}) {
+	translateKeyValues(str, values) {
 		// eslint-disable-next-line max-statements-per-line
 		return str.replace(/%([^%\s]+)%/g, (match, symbol) => { return values[symbol] || ''; });
 	}
@@ -40,7 +40,7 @@ class SlackService {
 	getTitle(lookupWord) {
 		return this.format.title ?
 			this.translateKeyValues(this.format.title, { term: lookupWord }) :
-			`Found results for ${lookupWord}`;
+			`Found results for "${lookupWord}"`;
 	}
 
 	/**
@@ -51,7 +51,7 @@ class SlackService {
 	 * @param {Array[]} results An array of row objects
 	 * @return {Object} Slack Blocks for the response
 	 */
-	getResultOutput(lookupWord = '', results = []) {
+	getResultOutput(lookupWord, results) {
 		if (!this.format.result) {
 			throw new GASError('format', 'There is no valid response format provided.');
 		}
@@ -65,7 +65,7 @@ class SlackService {
 				pretext: '',
 				title: this.format.no_result ?
 					this.translateKeyValues(this.format.no_result, { term: lookupWord }) :
-					`No results found for ${lookupWord}`,
+					`No results found for "${lookupWord}"`,
 				text: ''
 			});
 		} else {

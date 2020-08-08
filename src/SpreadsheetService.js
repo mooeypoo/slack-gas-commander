@@ -14,9 +14,10 @@ class SpreadsheetService {
 	 * @param {Array[]} [mockValues] Optional mock rows for the spreadsheet.
 	 *  Used primarily for testing.
 	 */
-	constructor(url, columns = [], sheetNum = 0, mockValues = []) {
+	constructor(url, columns, sheetNum = 0, mockValues = []) {
 		let values = mockValues;
 
+		/* istanbul ignore next */
 		if (typeof SpreadsheetApp !== 'undefined') {
 			// If SpreadsheetApp exists, we're in Google App Script production
 			const SheetApp = SpreadsheetApp.openByUrl(url),
@@ -33,15 +34,7 @@ class SpreadsheetService {
 		// what it should be
 		this.rows = this.constructor.removeEmptyRows(values);
 		this.columns = columns || [];
-	}
-
-	/**
-	 * Return the row array
-	 *
-	 * @return {Array[]} Array An array of rows, each an array of columns, in order.
-	 */
-	getRows() {
-		return this.rows;
+		this.url = url;
 	}
 
 	/**
@@ -53,6 +46,14 @@ class SpreadsheetService {
 		return this.columns;
 	}
 
+	/**
+	 * Return the spreadsheet URL
+	 *
+	 * @return {string} Spreadsheet URL
+	 */
+	getUrl() {
+		return this.url;
+	}
 	/**
 	 * Get the index of the column, based on its name
 	 *
@@ -138,7 +139,7 @@ class SpreadsheetService {
 	 * @param {Array[]} rowArr Array of rows
 	 * @return {Array[]} Trimmed array of rows
 	 */
-	static removeEmptyRows(rowArr = []) {
+	static removeEmptyRows(rowArr) {
 		return rowArr.filter(row => {
 			return row && !row.every(col => {
 				return !col.length; // All columns are empty

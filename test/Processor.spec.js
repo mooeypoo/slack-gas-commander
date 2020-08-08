@@ -28,76 +28,112 @@ below can mock an incoming POST request from Slack and make
 sure that the response is what we expect.
 */
 
+const definition = {
+	sheets: {
+		id_abbrev: {
+			url: '', // Skipped; tests are given mock rows
+			columns: [
+				'col1',
+				'col2',
+				'col3'
+			],
+			sheet: 0,
+			mockRows: [
+				['row1col1', 'row1col2', 'row1col3'],
+				['row2col1', 'row2col2', 'row2col3'],
+				['row3col1', 'row3col2', 'row3col3'],
+				['', '', '']
+				['row4col1', 'row4col2', 'row4col3'],
+				['row5col1', 'row5col2', 'row5col3'],
+				['row6col1', 'row6col2', 'row6col3'],
+				['row7col1', 'row6col2', 'row7col3'], // Duplicate col2 on purpose
+				['', '', ''],
+				['', '', '']
+			]
+		}
+	},
+	commands: {
+		abbrev: { // Key is the command name in slack; /abbrev
+			slack_token: 'xxxxx',
+			sheet: 'id_abbrev',
+			random: false,
+			lookup_column: 'col1',
+			format: {
+				title: 'These are the results for %term%', // Only "%term% is valid here
+				result: '*%term%* is %col3%',
+				no_result: 'Couldn\'t find anything for "%term%"'
+			}
+		}
+	}
+};
+
 describe('Processor test', () => {
-	describe('Basic command', () => {
-		const definition = {
-			sheets: {
-				id_abbrev: {
-					url: '', // Skipped; tests are given mock rows
-					columns: [
-						'col1',
-						'col2',
-						'col3'
-					],
-					sheet: 0,
-					mockRows: [
-						['row1col1', 'row1col2', 'row1col3'],
-						['row2col1', 'row2col2', 'row2col3'],
-						['row3col1', 'row3col2', 'row3col3'],
-						['', '', '']
-						['row4col1', 'row4col2', 'row4col3'],
-						['row5col1', 'row5col2', 'row5col3'],
-						['row6col1', 'row6col2', 'row6col3'],
-						['row7col1', 'row6col2', 'row7col3'], // Duplicate col2 on purpose
-						['', '', ''],
-						['', '', '']
-					]
-				}
+	describe('normalizeParameterValue', () => {
+		const cases = [
+			{
+				input: 'foo',
+				expected: 'foo'
 			},
-			commands: {
-				abbrev: { // Key is the command name in slack; /abbrev
-					slack_token: 'xxxxx',
-					sheet: 'id_abbrev',
-					random: false,
-					lookup_column: 'col1',
-					format: {
-						title: 'These are the results for %term%', // Only "%term% is valid here
-						result: '*%term%* is %col3%',
-						no_result: 'Couldn\'t find anything for "%term%"'
-					}
+			{
+				input: ' foo ',
+				expected: 'foo'
+			},
+			{
+				input: ['foo'],
+				expected: 'foo'
+			},
+			{
+				input: [' foo   '],
+				expected: 'foo'
+			},
+			{
+				input: '/foo',
+				expected: 'foo'
+			},
+			{
+				input: ['/foo'],
+				expected: 'foo'
+			}
+		];
+
+		cases.forEach(c => {
+			it(`Normalizing "${c.input}"`, () => {
+				expect(Processor.normalizeParameterValue(c.input)).to.equal(c.expected)
+			})
+		})
+	})
+
+	describe('Basic command', () => {
+		const cases = [
+			{
+				msg: 'Non random single result',
+				incoming: {
+					token: 'xxxxx', // correct token
+					command: '/abbrev', // correct command
+					text: 'ROW3COL1' // existing lookup value
+				},
+				expected: {
+					attachments: [
+						{
+							color: '#36a64f',
+							mrkdwn_in: [
+								'text'
+							],
+							pretext: '',
+							text: '',
+							title: 'These are the results for ROW3COL1'
+						},
+						{
+							mrkdwn_in: [
+								'text'
+							],
+							text: '*ROW3COL1* is row3col3' // case preserved from term
+						}
+					],
+					response_type: 'in_channel'
 				}
 			}
-		},
-			cases = [
-				{
-					msg: 'Non random single result',
-					incoming: {
-						token: 'xxxxx', // correct token
-						command: '/abbrev', // correct command
-						text: 'ROW3COL1' // existing lookup value
-					},
-					expected: {
-						attachments: [
-							{
-								color: '#36a64f',
-								mrkdwn_in: [
-									'text'
-								],
-								pretext: '',
-								text: '',
-								title: 'These are the results for ROW3COL1'
-							},
-							{
-								mrkdwn_in: [
-									'text'
-								],
-								text: '*ROW3COL1* is row3col3' // case preserved from term
-							}
-						],
-						response_type: 'in_channel'
-					}
-				}
-			];
+		];
 
 		const sgc = new Processor(definition);
 		const baseParams = {
@@ -126,8 +162,108 @@ describe('Processor test', () => {
 	});
 
 	describe('Thrown exception', () => {
-		expect(() => {
-			return new Processor();
-		}).to.throw(GASError)
+		describe('Validation and initialization', () => {
+			const cases = [
+				{
+					msg: 'Empty definition',
+					func: () => {
+						return new Processor();
+					},
+					expectedType: 'validation'
+				},
+				{
+					msg: 'Definition missing sheets',
+					func: () => {
+						return new Processor({ sheets: {}, commands: { foo: {} } });
+					},
+					expectedType: 'validation'
+				},
+				{
+					msg: 'Definition missing commands',
+					func: () => {
+						return new Processor({ sheets: { sheet1: {} }, commands: {} });
+					},
+					expectedType: 'validation'
+				},
+				{
+					msg: 'Defined command links to a nonexisting sheet',
+					func: () => {
+						return new Processor({ sheets: { sheet1: {} }, commands: { foo: { sheet: 'nonexistent' } } });
+					},
+					expectedType: 'initialization'
+				}
+			]
+
+			cases.forEach(c => {
+				it(c.msg, () => {
+					expect(c.func).to.throw(GASError)
+
+					let type = '';
+					try {
+						c.func();
+					} catch (e) {
+						type = e.getType();
+					}
+					expect(c.expectedType).to.equal(type)
+				});
+			})
+		})
+
+		describe('Process errors', () => {
+			const sgc = new Processor(definition),
+				cases = [
+					{
+						msg: 'Incoming nonexisting command name',
+						parameters: {
+							command: 'nonexistent',
+							token: 'xxxxx',
+							text: 'foo'
+						},
+						expectedType: 'processing',
+						expectedMessage: 'Given command "nonexistent" is not recognized.'
+					},
+					{
+						msg: 'Incoming bad token',
+						parameters: {
+							command: 'abbrev', // existing command in definition
+							token: 'yyyyy', // wrong token
+							text: 'foo'
+						},
+						expectedType: 'processing',
+						expectedMessage: 'Given token is invalid.'
+					},
+					{
+						msg: 'Missing text for non-random command',
+						parameters: {
+							command: 'abbrev', // existing command in definition
+							token: 'xxxxx',
+							text: '' // missing text for non-random definition
+						},
+						expectedType: 'processing',
+						expectedMessage: 'Expecting a parameter for command "abbrev".'
+					}
+				];
+
+			cases.forEach(c => {
+				it(c.msg, () => {
+					expect(() => {
+						sgc.process(c.parameters)
+					}).to.throw(GASError)
+
+					let type = '',
+						msg = '';
+					try {
+						sgc.process(c.parameters);
+					} catch (e) {
+						type = e.getType();
+						msg = e.message;
+					}
+					expect(c.expectedType).to.equal(type)
+					expect(c.expectedMessage).to.equal(msg)
+				});
+			})
+
+
+		})
 	});
 });

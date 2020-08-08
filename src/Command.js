@@ -16,8 +16,8 @@ class Command {
 		this.random = !!definition.random;
 		this.lookup_column = definition.lookup_column;
 		this.slackToken = definition.slack_token;
-		this.caseSensitive = definition.caseSensitive !== undefined ?
-			!!definition.caseSensitive : false;
+		this.caseSensitive = definition.case_sensitive !== undefined ?
+			!!definition.case_sensitive : false;
 	}
 
 	/**
@@ -41,6 +41,24 @@ class Command {
 	 */
 	isTokenValid(incomingToken) {
 		return this.slackToken === incomingToken;
+	}
+
+	/**
+	 * Check whether this command is random
+	 *
+	 * @return {boolean} Command is random
+	 */
+	isRandom() {
+		return this.random;
+	}
+
+	/**
+	 * Check whether this command relies on case sensitivity when requesting lookup
+	 *
+	 * @return {boolean} Command lookup is case sensitive
+	 */
+	isCaseSensitive() {
+		return this.caseSensitive;
 	}
 
 	/**

@@ -138,10 +138,10 @@ Defines the spreadsheet or spreadsheets that your commands will use for data.
 |   Property	|Type |   Description	|   Example |
 |---	|---	|---	|---	|
 |url   	|`string`|A URL to the spreadsheet |`"https://docs.google.com/spreadsheets/d/xxyyzz/edit#gid=0"`|
-|  columns 	|`array`   	|An array of strings representing symbolic names for the columns in your spreadsheet.	| `['col1','col2','col3']`
-|<td colspan="4">NOTE: Column names are symbolic, and used for refreence for the command to know which column to read and output.</td>
-|<td colspan="4">You should avoid using spaces in column names. **You cannot name a colum `term`**</td>
-|sheet 	| `number`  |Sheet number, in case the spreadsheet has multiple sheets. Defaults to 0, which is the first sheet.| `0` 
+|  columns 	|`array`   	|An array of strings representing symbolic names for the columns in your spreadsheet.	| `['col1','col2','col3']`|
+|<td colspan="4">NOTE: Column names are symbolic, and used for refreence for the command to know which column to read and output.</td>|
+|<td colspan="4">You should avoid using spaces in column names. **You cannot name a colum `term`**</td>|
+|sheet 	| `number`  |Sheet number, in case the spreadsheet has multiple sheets. Defaults to 0, which is the first sheet.| `0` |
 
 ### commands
 Defines the behavior of the command and its output.

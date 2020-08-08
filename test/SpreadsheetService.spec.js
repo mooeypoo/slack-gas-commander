@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import SpreadsheetService from '../src/SpreadsheetService.js';
+import GASError from '../src/GASError.js';
 
 const columns = ['col1', 'col2', 'col3'],
 	mockRows = [
@@ -7,17 +8,33 @@ const columns = ['col1', 'col2', 'col3'],
 		['row2col1', 'row2col2', 'row2col3'],
 		['row3col1', 'row3col2', 'row3col3'],
 		['', '', '']
-			['row4col1', 'row4col2', 'row4col3'],
+		['row4col1', 'row4col2', 'row4col3'],
 		['row5col1', 'row5col2', 'row5col3'],
 		['row6col1', 'row6col2', 'row6col3'],
 		['row7col1', 'row6col2', 'row7col3'], // Duplicate col2 on purpose
-		['', '', ''],
+		['fOo', 'BAR', 'BaZ'],
 		['', '', '']
 	];
 
-describe( 'SpreadsheetService test', () => {
-	describe( 'removeEmptyRows', () => {
-		it( 'Should remove empty rows.', () => {
+describe('SpreadsheetService test', () => {
+	describe('Instantiation', () => {
+		const ss = new SpreadsheetService('http://example.com/url/is/here', columns, 0, mockRows);
+
+		it('getColumns', () => {
+			expect(ss.getColumns()).to.deep.equal(['col1', 'col2', 'col3'])
+		})
+		it('getUrl', () => {
+			expect(ss.getUrl()).to.equal('http://example.com/url/is/here')
+		})
+		it('getColumns', () => {
+			expect(ss.getColumnIndex('col1')).to.equal(0)
+			expect(ss.getColumnIndex('nonexistent')).to.equal(-1)
+			expect(ss.getColumnIndex('col3')).to.equal(2)
+		})
+	});
+
+	describe('removeEmptyRows', () => {
+		it('Should remove empty rows.', () => {
 			const cases = [
 				{
 					input: [
@@ -40,14 +57,14 @@ describe( 'SpreadsheetService test', () => {
 				}
 			];
 
-			cases.forEach( c => {
-				expect( SpreadsheetService.removeEmptyRows( c.input ) )
-					.to.deep.equal( c.expected );
-			} );
-		} );
-	} );
+			cases.forEach(c => {
+				expect(SpreadsheetService.removeEmptyRows(c.input))
+					.to.deep.equal(c.expected);
+			});
+		});
+	});
 
-	describe( 'getRowsByColumn', () => {
+	describe('getRowsByColumn', () => {
 		const cases = [
 			{
 				msg: 'Simple result lookup',
@@ -77,19 +94,46 @@ describe( 'SpreadsheetService test', () => {
 					['row6col1', 'row6col2', 'row6col3'],
 					['row7col1', 'row6col2', 'row7col3']
 				]
+			},
+			{
+				msg: 'Case sensitive results (bad case)',
+				input: {
+					col: 'col1',
+					val: 'foo', // should be fOo
+					caseSensitive: true
+				},
+				expected: []
+			},
+			{
+				msg: 'Case sensitive results (proper case)',
+				input: {
+					col: 'col1',
+					val: 'fOo', // should be fOo
+					caseSensitive: true
+				},
+				expected: [
+					['fOo', 'BAR', 'BaZ'],
+				]
 			}
 		];
 
-		const ss = new SpreadsheetService( '', columns, 0, mockRows );
-		cases.forEach( c => {
-			it( c.msg, () => {
-				expect( ss.getRowsByColumn( c.input.col, c.input.val, c.input.responseCol ) )
-					.to.deep.equal( c.expected );
-			} );
-		} );
-	} );
+		const ss = new SpreadsheetService('', columns, 0, mockRows);
+		cases.forEach(c => {
+			it(c.msg, () => {
+				expect(ss.getRowsByColumn(c.input.col, c.input.val, c.input.caseSensitive))
+					.to.deep.equal(c.expected);
+			});
+		});
 
-	describe( 'getResultObjectByColumn', () => {
+		// Errors
+		it('Throw an error if column is unrecognized', () => {
+			expect(() => {
+				ss.getRowsByColumn('nonexistent', 'row6col1')
+			}).to.throw(GASError)
+		})
+	});
+
+	describe('getResultObjectByColumn', () => {
 		const cases = [
 			{
 				msg: 'Single result',
@@ -130,7 +174,7 @@ describe( 'SpreadsheetService test', () => {
 				msg: 'No results',
 				input: {
 					col: 'col1',
-					val: 'foo',
+					val: 'bloop',
 					random: false
 				},
 				expected: []
@@ -138,12 +182,12 @@ describe( 'SpreadsheetService test', () => {
 			// TODO: Test random
 		];
 
-		const ss = new SpreadsheetService( '', columns, 0, mockRows );
-		cases.forEach( c => {
-			it( c.msg, () => {
-				expect( ss.getResultObjectByColumn( c.input.col, c.input.val, c.input.random ) )
-					.to.deep.equal( c.expected );
-			} );
-		} );
-	} );
-} );
+		const ss = new SpreadsheetService('', columns, 0, mockRows);
+		cases.forEach(c => {
+			it(c.msg, () => {
+				expect(ss.getResultObjectByColumn(c.input.col, c.input.val, c.input.random))
+					.to.deep.equal(c.expected);
+			});
+		});
+	});
+});

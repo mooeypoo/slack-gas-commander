@@ -20,7 +20,7 @@ class Processor {
 		this.validateDefinition(definition);
 		// Store sheets
 		this.sheets = {};
-		for (const [sId, sData] of Object.entries(definition.sheets || {})) {
+		for (const [sId, sData] of Object.entries(definition.sheets)) {
 			this.sheets[sId] = new SpreadsheetService(
 				sData.url,
 				sData.columns,
@@ -32,10 +32,10 @@ class Processor {
 		// Store commands
 		this.commands = {};
 		this.slack = {};
-		for (const [cmd, cmdData] of Object.entries(definition.commands || {})) {
+		for (const [cmd, cmdData] of Object.entries(definition.commands)) {
 			const sheet = this.sheets[cmdData.sheet];
 			if (!sheet) {
-				continue;
+				throw new GASError('initialization', `Given command "${cmd}" references a sheet that is not recognized.`);
 			}
 
 			this.commands[cmd] = new Command(cmd, sheet, cmdData);
@@ -53,24 +53,20 @@ class Processor {
 	 */
 	process(parameters) {
 		// Remove the slash from incoming command name
-		const command = (Array.isArray(parameters.command) ?
-			parameters.command[0] : parameters.command).substr(1);
-		const token = Array.isArray(parameters.token) ? parameters.token[0] : parameters.token;
+		const command = this.constructor.normalizeParameterValue(parameters.command);
+		const token = this.constructor.normalizeParameterValue(parameters.token);
 
 		if (!this.commands[command]) {
 			throw new GASError('processing', `Given command "${command}" is not recognized.`);
 		}
-		if (!this.commands[command].getSheet()) {
-			throw new GASError('processing', `Given command "${command}" does not have an attached spreadsheet.`);
-		}
 		if (!this.validateIncomingToken(command, token)) {
 			throw new GASError('processing', 'Given token is invalid.');
 		}
-		const text = (Array.isArray(parameters.text) ? parameters.text[0] : parameters.text).trim();
+		const text = this.constructor.normalizeParameterValue(parameters.text);
 
 		if (!text && !this.commands[command].isRandom()) {
 			// Parameter is expected
-			throw new GASError('command', 'Expecting a parameter.');
+			throw new GASError('processing', `Expecting a parameter for command "${command}".`);
 		}
 
 		// Get the results
@@ -104,7 +100,7 @@ class Processor {
 	 * @param {Object} definition Object defining the system
 	 */
 	validateDefinition(definition) {
-		if (!definition) {
+		if (!definition || !Object.keys(definition).length) {
 			throw new GASError('validation', 'Definition object cannot be empty.');
 		}
 
@@ -116,6 +112,26 @@ class Processor {
 			throw new GASError('validation', 'Definition must include at least one command.');
 		}
 	}
+
+	/**
+	 * Slack parameters seem to sometimes appear as part of an array, and
+	 * sometimes not. Some of them have a slash and some not; this will
+	 * normalize the response to output the expected parameter value.
+	 *
+	 * @param {string} rawParam Parameter value from the API
+	 * @return {string} Normalized parameter value
+	 */
+	static normalizeParameterValue(rawParam) {
+		let val = Array.isArray(rawParam) ? rawParam[0] : rawParam;
+
+		val = val.trim();
+
+		if (val.indexOf('/') === 0) {
+			val = val.substr(1);
+		}
+		return val;
+	}
+
 	/**
 	 * Output an object into JSON representation using Google App Script's
 	 * ContentService and headers.
@@ -123,7 +139,8 @@ class Processor {
 	 * @param {Object} object to JSONify
 	 * @return {ContentService} stringified representation within Google App Script
 	 */
-	outputJSON(object) {
+	static outputJSON(object) {
+		/* istanbul ignore next */
 		return ContentService.createTextOutput(JSON.stringify(object))
 			.setMimeType(ContentService.MimeType.JSON);
 	}
