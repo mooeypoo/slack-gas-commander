@@ -2,6 +2,9 @@
 
 Slack GAS Commander
 ======================
+
+**This package is not yet ready for production.**
+
 With Slack GAS Commander npm package you can simply and quickly set up a connection between Slack Commands and Google Spreadsheets through Google App Script (GAS) and a configuration object.
 
 For example, if your spreadsheet includes the columns 'first name' and 'last name', your command can look something like this: `/lastname john` and get a result of all people whose first name matches "john" in the connected spreadsheet.
